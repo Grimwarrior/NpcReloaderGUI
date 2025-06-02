@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35828.75
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NpcReloaderGUI", "NpcReloaderGUI\NpcReloaderGUI.csproj", "{821FE508-5B5B-49BC-8082-4A58CE7D3622}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulsAssetPipeline", "NpcReloaderGUI\SoulsAssetPipeline\SoulsAssetPipeline\SoulsAssetPipeline.csproj", "{AF8713A1-79A7-8FDA-67D3-542BBD3C2BD7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Havoc", "NpcReloaderGUI\SoulsAssetPipeline\Havoc\Havoc.csproj", "{CA5E1EE2-78EE-4081-9273-D4282FC0DD93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulsFormats", "NpcReloaderGUI\SoulsAssetPipeline\SoulsFormats\SoulsFormats\SoulsFormats.csproj", "{0A6510FE-81C2-4F25-9A08-95825751FE27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{821FE508-5B5B-49BC-8082-4A58CE7D3622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{821FE508-5B5B-49BC-8082-4A58CE7D3622}.Debug|x64.ActiveCfg = Debug|x64
+		{821FE508-5B5B-49BC-8082-4A58CE7D3622}.Debug|x64.Build.0 = Debug|x64
+		{821FE508-5B5B-49BC-8082-4A58CE7D3622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{821FE508-5B5B-49BC-8082-4A58CE7D3622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{821FE508-5B5B-49BC-8082-4A58CE7D3622}.Release|x64.ActiveCfg = Release|x64
+		{AF8713A1-79A7-8FDA-67D3-542BBD3C2BD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF8713A1-79A7-8FDA-67D3-542BBD3C2BD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF8713A1-79A7-8FDA-67D3-542BBD3C2BD7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AF8713A1-79A7-8FDA-67D3-542BBD3C2BD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF8713A1-79A7-8FDA-67D3-542BBD3C2BD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF8713A1-79A7-8FDA-67D3-542BBD3C2BD7}.Release|x64.ActiveCfg = Release|Any CPU
+		{CA5E1EE2-78EE-4081-9273-D4282FC0DD93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA5E1EE2-78EE-4081-9273-D4282FC0DD93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA5E1EE2-78EE-4081-9273-D4282FC0DD93}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CA5E1EE2-78EE-4081-9273-D4282FC0DD93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA5E1EE2-78EE-4081-9273-D4282FC0DD93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA5E1EE2-78EE-4081-9273-D4282FC0DD93}.Release|x64.ActiveCfg = Release|Any CPU
+		{0A6510FE-81C2-4F25-9A08-95825751FE27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A6510FE-81C2-4F25-9A08-95825751FE27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A6510FE-81C2-4F25-9A08-95825751FE27}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0A6510FE-81C2-4F25-9A08-95825751FE27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A6510FE-81C2-4F25-9A08-95825751FE27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A6510FE-81C2-4F25-9A08-95825751FE27}.Release|x64.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C008C373-D73A-4D31-8E0A-6DFA26D58333}
+	EndGlobalSection
+EndGlobal

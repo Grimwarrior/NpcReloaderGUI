@@ -1,0 +1,369 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\NpcReloaderGUI.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\NpcReloaderGUI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\NpcReloaderGUI.csproj",
+        "projectName": "NpcReloaderGUI",
+        "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\NpcReloaderGUI.csproj",
+        "packagesPath": "C:\\Users\\medin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\medin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0-windows"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0-windows7.0": {
+            "targetAlias": "net6.0-windows",
+            "projectReferences": {
+              "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\Havoc.csproj": {
+                "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\Havoc.csproj"
+              },
+              "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsAssetPipeline\\SoulsAssetPipeline.csproj": {
+                "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsAssetPipeline\\SoulsAssetPipeline.csproj"
+              },
+              "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\SoulsFormats.csproj": {
+                "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\SoulsFormats.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net6.0-windows7.0": {
+          "targetAlias": "net6.0-windows",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\Havoc.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\Havoc.csproj",
+        "projectName": "Havoc",
+        "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\Havoc.csproj",
+        "packagesPath": "C:\\Users\\medin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\medin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0-windows"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0-windows7.0": {
+            "targetAlias": "net6.0-windows",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net6.0-windows7.0": {
+          "targetAlias": "net6.0-windows",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsAssetPipeline\\SoulsAssetPipeline.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsAssetPipeline\\SoulsAssetPipeline.csproj",
+        "projectName": "SoulsAssetPipeline",
+        "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsAssetPipeline\\SoulsAssetPipeline.csproj",
+        "packagesPath": "C:\\Users\\medin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsAssetPipeline\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\medin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0-windows"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0-windows7.0": {
+            "targetAlias": "net6.0-windows",
+            "projectReferences": {
+              "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\Havoc.csproj": {
+                "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\Havoc\\Havoc.csproj"
+              },
+              "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\SoulsFormats.csproj": {
+                "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\SoulsFormats.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net6.0-windows7.0": {
+          "targetAlias": "net6.0-windows",
+          "dependencies": {
+            "AssimpNet": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
+            "TeximpNet": {
+              "target": "Package",
+              "version": "[1.4.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\SoulsFormats.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\SoulsFormats.csproj",
+        "projectName": "SoulsFormats",
+        "projectPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\SoulsFormats.csproj",
+        "packagesPath": "C:\\Users\\medin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\medin\\source\\repos\\NpcReloaderGUI\\NpcReloaderGUI\\SoulsAssetPipeline\\SoulsFormats\\SoulsFormats\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\medin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net46",
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net46": {
+            "targetAlias": "net46",
+            "projectReferences": {}
+          },
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net46": {
+          "targetAlias": "net46",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201\\RuntimeIdentifierGraph.json"
+        },
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "System.Text.Encoding.CodePages": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

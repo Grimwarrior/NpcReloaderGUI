@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="SoulsAssetPipeline\**" />
+    <EmbeddedResource Remove="SoulsAssetPipeline\**" />
+    <None Remove="SoulsAssetPipeline\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="SoulsAssetPipeline\Havoc\Havoc.csproj" />
+	  <ProjectReference Include="SoulsAssetPipeline\SoulsAssetPipeline\SoulsAssetPipeline.csproj" />
+	  <ProjectReference Include="SoulsAssetPipeline\SoulsFormats\SoulsFormats\SoulsFormats.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DS ANIM STUDIO">
+      <HintPath>DS ANIM STUDIO.dll</HintPath>
+    </Reference>
+    <Reference Include="Havoc">
+      <HintPath>Havoc.dll</HintPath>
+    </Reference>
+    <Reference Include="SoulsAssetPipeline">
+      <HintPath>SoulsAssetPipeline.dll</HintPath>
+    </Reference>
+    <Reference Include="SoulsFormats">
+      <HintPath>SoulsFormats.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
