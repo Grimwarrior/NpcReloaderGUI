@@ -30,16 +30,23 @@
         {
             label1 = new Label();
             cmbGameSelection = new ComboBox();
-            label2 = new Label();
-            txtChrId = new TextBox();
             btnReload = new Button();
             groupBox1 = new GroupBox();
-            chkAutoReload = new CheckBox();
-            label3 = new Label();
-            txtScriptPath = new TextBox();
             btnBrowseScript = new Button();
+            txtScriptPath = new TextBox();
+            label3 = new Label();
+            chkAutoReload = new CheckBox();
             txtLog = new TextBox();
+            cmbChrSelection = new ComboBox();
+            labelCharacterName = new Label();
+            groupBox2 = new GroupBox();
+            label2 = new Label();
+            txtNewCharId = new TextBox();
+            txtNewCharName = new TextBox();
+            label4 = new Label();
+            btnAddChar = new Button();
             groupBox1.SuspendLayout();
+            groupBox2.SuspendLayout();
             SuspendLayout();
             // 
             // label1
@@ -56,31 +63,15 @@
             // 
             cmbGameSelection.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbGameSelection.FormattingEnabled = true;
-            cmbGameSelection.Location = new Point(4, 28);
+            cmbGameSelection.Location = new Point(4, 24);
             cmbGameSelection.Name = "cmbGameSelection";
             cmbGameSelection.Size = new Size(153, 33);
             cmbGameSelection.TabIndex = 1;
             cmbGameSelection.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(4, 99);
-            label2.Name = "label2";
-            label2.Size = new Size(213, 25);
-            label2.TabIndex = 2;
-            label2.Text = "Character ID (e.g., c0000):";
-            // 
-            // txtChrId
-            // 
-            txtChrId.Location = new Point(4, 127);
-            txtChrId.Name = "txtChrId";
-            txtChrId.Size = new Size(329, 31);
-            txtChrId.TabIndex = 3;
-            // 
             // btnReload
             // 
-            btnReload.Location = new Point(4, 459);
+            btnReload.Location = new Point(7, 526);
             btnReload.Name = "btnReload";
             btnReload.Size = new Size(149, 34);
             btnReload.TabIndex = 4;
@@ -90,16 +81,44 @@
             // 
             // groupBox1
             // 
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBox1.Controls.Add(btnBrowseScript);
             groupBox1.Controls.Add(txtScriptPath);
             groupBox1.Controls.Add(label3);
             groupBox1.Controls.Add(chkAutoReload);
-            groupBox1.Location = new Point(4, 214);
+            groupBox1.Location = new Point(9, 162);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(364, 202);
+            groupBox1.Size = new Size(388, 202);
             groupBox1.TabIndex = 5;
             groupBox1.TabStop = false;
             groupBox1.Text = "Auto Reload";
+            // 
+            // btnBrowseScript
+            // 
+            btnBrowseScript.Location = new Point(167, 64);
+            btnBrowseScript.Name = "btnBrowseScript";
+            btnBrowseScript.Size = new Size(112, 34);
+            btnBrowseScript.TabIndex = 3;
+            btnBrowseScript.Text = "Browse...";
+            btnBrowseScript.UseVisualStyleBackColor = true;
+            btnBrowseScript.Click += btnBrowseScript_Click_1;
+            // 
+            // txtScriptPath
+            // 
+            txtScriptPath.Location = new Point(3, 64);
+            txtScriptPath.Name = "txtScriptPath";
+            txtScriptPath.ReadOnly = true;
+            txtScriptPath.Size = new Size(150, 31);
+            txtScriptPath.TabIndex = 2;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(3, 27);
+            label3.Name = "label3";
+            label3.Size = new Size(88, 25);
+            label3.TabIndex = 1;
+            label3.Text = "Script File";
             // 
             // chkAutoReload
             // 
@@ -112,62 +131,112 @@
             chkAutoReload.UseVisualStyleBackColor = true;
             chkAutoReload.CheckedChanged += chkAutoReload_CheckedChanged_1;
             // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(3, 27);
-            label3.Name = "label3";
-            label3.Size = new Size(88, 25);
-            label3.TabIndex = 1;
-            label3.Text = "Script File";
-            // 
-            // txtScriptPath
-            // 
-            txtScriptPath.Location = new Point(3, 64);
-            txtScriptPath.Name = "txtScriptPath";
-            txtScriptPath.ReadOnly = true;
-            txtScriptPath.Size = new Size(150, 31);
-            txtScriptPath.TabIndex = 2;
-            // 
-            // btnBrowseScript
-            // 
-            btnBrowseScript.Location = new Point(167, 64);
-            btnBrowseScript.Name = "btnBrowseScript";
-            btnBrowseScript.Size = new Size(112, 34);
-            btnBrowseScript.TabIndex = 3;
-            btnBrowseScript.Text = "Browse...";
-            btnBrowseScript.UseVisualStyleBackColor = true;
-            btnBrowseScript.Click += btnBrowseScript_Click_1;
-            // 
             // txtLog
             // 
-            txtLog.Dock = DockStyle.Right;
-            txtLog.Location = new Point(379, 0);
+            txtLog.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtLog.Location = new Point(484, 0);
             txtLog.Multiline = true;
             txtLog.Name = "txtLog";
             txtLog.ReadOnly = true;
             txtLog.ScrollBars = ScrollBars.Vertical;
-            txtLog.Size = new Size(302, 567);
+            txtLog.Size = new Size(268, 567);
             txtLog.TabIndex = 6;
             txtLog.TextChanged += txtLog_TextChanged;
+            // 
+            // cmbChrSelection
+            // 
+            cmbChrSelection.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            cmbChrSelection.FormattingEnabled = true;
+            cmbChrSelection.Location = new Point(7, 109);
+            cmbChrSelection.Name = "cmbChrSelection";
+            cmbChrSelection.Size = new Size(262, 33);
+            cmbChrSelection.TabIndex = 7;
+            // 
+            // labelCharacterName
+            // 
+            labelCharacterName.AutoSize = true;
+            labelCharacterName.Location = new Point(7, 81);
+            labelCharacterName.Name = "labelCharacterName";
+            labelCharacterName.Size = new Size(147, 25);
+            labelCharacterName.TabIndex = 2;
+            labelCharacterName.Text = "Character Name :";
+            labelCharacterName.Click += labelCharacterName_Click;
+            // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(btnAddChar);
+            groupBox2.Controls.Add(txtNewCharName);
+            groupBox2.Controls.Add(label4);
+            groupBox2.Controls.Add(txtNewCharId);
+            groupBox2.Controls.Add(label2);
+            groupBox2.Location = new Point(9, 370);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(300, 150);
+            groupBox2.TabIndex = 8;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Add New Character";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(6, 27);
+            label2.Name = "label2";
+            label2.Size = new Size(30, 25);
+            label2.TabIndex = 0;
+            label2.Text = "ID";
+            // 
+            // txtNewCharId
+            // 
+            txtNewCharId.Location = new Point(42, 30);
+            txtNewCharId.Name = "txtNewCharId";
+            txtNewCharId.Size = new Size(150, 31);
+            txtNewCharId.TabIndex = 1;
+            // 
+            // txtNewCharName
+            // 
+            txtNewCharName.Location = new Point(71, 67);
+            txtNewCharName.Name = "txtNewCharName";
+            txtNewCharName.Size = new Size(150, 31);
+            txtNewCharName.TabIndex = 3;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(6, 64);
+            label4.Name = "label4";
+            label4.Size = new Size(59, 25);
+            label4.TabIndex = 2;
+            label4.Text = "Name";
+            // 
+            // btnAddChar
+            // 
+            btnAddChar.Location = new Point(6, 104);
+            btnAddChar.Name = "btnAddChar";
+            btnAddChar.Size = new Size(112, 34);
+            btnAddChar.TabIndex = 4;
+            btnAddChar.Text = "Add Entry";
+            btnAddChar.UseVisualStyleBackColor = true;
+            btnAddChar.Click += btnAddChar_Click;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(681, 567);
+            ClientSize = new Size(761, 648);
+            Controls.Add(groupBox2);
+            Controls.Add(cmbChrSelection);
+            Controls.Add(labelCharacterName);
             Controls.Add(txtLog);
             Controls.Add(groupBox1);
             Controls.Add(btnReload);
-            Controls.Add(txtChrId);
-            Controls.Add(label2);
             Controls.Add(cmbGameSelection);
             Controls.Add(label1);
             Name = "MainForm";
-            Text = "ChrReloader";
             Load += MainForm_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -176,8 +245,7 @@
 
         private Label label1;
         private ComboBox cmbGameSelection;
-        private Label label2;
-        private TextBox txtChrId;
+        private Label labelCharacterName;
         private Button btnReload;
         private GroupBox groupBox1;
         private Button btnBrowseScript;
@@ -185,5 +253,12 @@
         private Label label3;
         private CheckBox chkAutoReload;
         private TextBox txtLog;
+        private ComboBox cmbChrSelection;
+        private GroupBox groupBox2;
+        private TextBox txtNewCharName;
+        private Label label4;
+        private TextBox txtNewCharId;
+        private Label label2;
+        private Button btnAddChar;
     }
 }

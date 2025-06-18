@@ -1,3 +1,4 @@
+using NpcReloaderGUI.Core;
 using System;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace NpcReloaderGUI
 
             // Set the LogAction in NpcReloaderLogic to update our TextBox
             NpcReloaderLogic.LogAction = LogMessage;
+            // Call the new setup method
+            SetupCharacterComboBox();
         }
 
         private void InitializeFileWatcher()
@@ -37,6 +40,30 @@ namespace NpcReloaderGUI
             _debounceTimer = new System.Threading.Timer(DebounceTimerCallback, null, Timeout.Infinite, Timeout.Infinite);
         }
 
+        // +++ ADD THIS NEW METHOD +++
+        private void SetupCharacterComboBox()
+        {
+            // Set the data source to our global list of characters.
+            cmbChrSelection.DataSource = CharacterData.AllCharacters;
+
+            // Configure the search/autocomplete functionality.
+            cmbChrSelection.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            cmbChrSelection.AutoCompleteSource = AutoCompleteSource.ListItems;
+
+            // Set the ComboBox style to allow typing custom text
+            cmbChrSelection.DropDownStyle = ComboBoxStyle.DropDown;
+
+            // Select a default character, e.g. Radagon (c2190)
+            var radagon = CharacterData.AllCharacters.FirstOrDefault(c => c.Id == 2190);
+            if (radagon != null)
+            {
+                cmbChrSelection.SelectedItem = radagon;
+            }
+            else if (cmbChrSelection.Items.Count > 0)
+            {
+                cmbChrSelection.SelectedIndex = 0; // Fallback to first item
+            }
+        }
         // --- UI Event Handlers ---
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -65,6 +92,47 @@ namespace NpcReloaderGUI
         }
 
 
+        //private async void btnReload_Click_1(object sender, EventArgs e)
+        //{
+        //    if (cmbGameSelection.SelectedItem == null)
+        //    {
+        //        MessageBox.Show("Please select a game.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //        return;
+        //    }
+
+        //    SoulsGames selectedGame = (SoulsGames)cmbGameSelection.SelectedItem;
+        //    string chrId = txtChrId.Text.Trim();
+
+        //    if (string.IsNullOrWhiteSpace(chrId))
+        //    {
+        //        MessageBox.Show("Please enter a Character ID.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //        txtChrId.Focus();
+        //        return;
+        //    }
+
+
+        //    // Disable button during operation
+        //    btnReload.Enabled = false;
+        //    this.UseWaitCursor = true;
+
+        //    // Run the reload logic asynchronously to avoid blocking UI thread entirely
+        //    // Although the core injection might still block briefly
+        //    bool success = await System.Threading.Tasks.Task.Run(() =>
+        //        NpcReloaderLogic.RequestReloadChr(selectedGame, chrId)
+        //    );
+
+        //    // Re-enable button
+        //    this.UseWaitCursor = false;
+        //    btnReload.Enabled = true;
+
+        //    if (success)
+        //    {
+        //        LogMessage($"Manual reload requested for {chrId} in {selectedGame}.");
+        //        // Optionally flash the background or give some visual cue
+        //    }
+        //    // Error messages are handled by NpcReloaderLogic via MessageBox and LogMessage
+        //}
+
         private async void btnReload_Click_1(object sender, EventArgs e)
         {
             if (cmbGameSelection.SelectedItem == null)
@@ -74,24 +142,35 @@ namespace NpcReloaderGUI
             }
 
             SoulsGames selectedGame = (SoulsGames)cmbGameSelection.SelectedItem;
-            string chrId = txtChrId.Text.Trim();
+            string chrIdToReload = null;
 
-            if (string.IsNullOrWhiteSpace(chrId))
+            // Get the selected item from the ComboBox.
+            var selectedCharacter = cmbChrSelection.SelectedItem as CharacterInfo;
+
+            if (selectedCharacter != null)
             {
-                MessageBox.Show("Please enter a Character ID.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtChrId.Focus();
-                return;
+                // Get the formatted character ID string (e.g., "c2190").
+                chrIdToReload = selectedCharacter.CharacterIdString;
+            }
+            else
+            {
+                // Fallback for if the user typed something not in the list.
+                chrIdToReload = cmbChrSelection.Text.Trim();
             }
 
+            if (string.IsNullOrWhiteSpace(chrIdToReload))
+            {
+                MessageBox.Show("Please select or enter a character to reload.", "No Character Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbChrSelection.Focus();
+                return;
+            }
 
             // Disable button during operation
             btnReload.Enabled = false;
             this.UseWaitCursor = true;
 
-            // Run the reload logic asynchronously to avoid blocking UI thread entirely
-            // Although the core injection might still block briefly
             bool success = await System.Threading.Tasks.Task.Run(() =>
-                NpcReloaderLogic.RequestReloadChr(selectedGame, chrId)
+                NpcReloaderLogic.RequestReloadChr(selectedGame, chrIdToReload)
             );
 
             // Re-enable button
@@ -100,12 +179,9 @@ namespace NpcReloaderGUI
 
             if (success)
             {
-                LogMessage($"Manual reload requested for {chrId} in {selectedGame}.");
-                // Optionally flash the background or give some visual cue
+                LogMessage($"Manual reload requested for {chrIdToReload} in {selectedGame}.");
             }
-            // Error messages are handled by NpcReloaderLogic via MessageBox and LogMessage
         }
-
         private void btnBrowseScript_Click_1(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -226,31 +302,75 @@ namespace NpcReloaderGUI
         }
 
         // This callback executes on a ThreadPool thread after the debounce period
+        //private void DebounceTimerCallback(object state)
+        //{
+        //    LogMessage("Debounce timer elapsed. Triggering auto-reload.");
+
+        //    // We need to get UI values (game, chrId) safely. Use Invoke.
+        //    this.Invoke((MethodInvoker)delegate
+        //    {
+        //        if (!chkAutoReload.Checked) return; // Double check if user disabled it
+
+        //        if (cmbGameSelection.SelectedItem == null || string.IsNullOrWhiteSpace(txtChrId.Text))
+        //        {
+        //            LogMessage("Auto-reload skipped: Game or Character ID not set.");
+        //            return;
+        //        }
+
+        //        SoulsGames selectedGame = (SoulsGames)cmbGameSelection.SelectedItem;
+        //        string chrId = txtChrId.Text.Trim(); // Get fresh value
+
+        //        // Perform the reload - consider running async again if NpcReloaderLogic takes time
+        //        // But since this is already off the UI thread, direct call might be okay
+        //        // Using Task.Run ensures any blocking within doesn't stall the ThreadPool thread excessively.
+        //        System.Threading.Tasks.Task.Run(() =>
+        //        {
+        //            LogMessage($"Auto-reloading {chrId} in {selectedGame} due to script change...");
+        //            NpcReloaderLogic.RequestReloadChr(selectedGame, chrId);
+        //        });
+
+        //    });
+        //}
         private void DebounceTimerCallback(object state)
         {
             LogMessage("Debounce timer elapsed. Triggering auto-reload.");
 
-            // We need to get UI values (game, chrId) safely. Use Invoke.
+            // We need to get UI values safely. Use Invoke.
             this.Invoke((MethodInvoker)delegate
             {
-                if (!chkAutoReload.Checked) return; // Double check if user disabled it
+                if (!chkAutoReload.Checked) return;
 
-                if (cmbGameSelection.SelectedItem == null || string.IsNullOrWhiteSpace(txtChrId.Text))
+                SoulsGames selectedGame;
+                string chrIdToReload = null;
+
+                // Safely get game and character ID from UI controls
+                if (cmbGameSelection.SelectedItem == null)
                 {
-                    LogMessage("Auto-reload skipped: Game or Character ID not set.");
+                    LogMessage("Auto-reload skipped: Game not set.");
+                    return;
+                }
+                selectedGame = (SoulsGames)cmbGameSelection.SelectedItem;
+
+                var selectedCharacter = cmbChrSelection.SelectedItem as CharacterInfo;
+                if (selectedCharacter != null)
+                {
+                    chrIdToReload = selectedCharacter.CharacterIdString;
+                }
+                else
+                {
+                    chrIdToReload = cmbChrSelection.Text.Trim();
+                }
+
+                if (string.IsNullOrWhiteSpace(chrIdToReload))
+                {
+                    LogMessage("Auto-reload skipped: Character ID not set.");
                     return;
                 }
 
-                SoulsGames selectedGame = (SoulsGames)cmbGameSelection.SelectedItem;
-                string chrId = txtChrId.Text.Trim(); // Get fresh value
-
-                // Perform the reload - consider running async again if NpcReloaderLogic takes time
-                // But since this is already off the UI thread, direct call might be okay
-                // Using Task.Run ensures any blocking within doesn't stall the ThreadPool thread excessively.
                 System.Threading.Tasks.Task.Run(() =>
                 {
-                    LogMessage($"Auto-reloading {chrId} in {selectedGame} due to script change...");
-                    NpcReloaderLogic.RequestReloadChr(selectedGame, chrId);
+                    LogMessage($"Auto-reloading {chrIdToReload} in {selectedGame} due to script change...");
+                    NpcReloaderLogic.RequestReloadChr(selectedGame, chrIdToReload);
                 });
 
             });
@@ -297,5 +417,56 @@ namespace NpcReloaderGUI
 
         }
 
+        private void labelCharacterName_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        // This is the new event handler for the "Add Entry" button.
+        private void btnAddChar_Click(object sender, EventArgs e)
+        {
+            // 1. Get and Validate Input
+            string newIdText = txtNewCharId.Text.Trim();
+            string newName = txtNewCharName.Text.Trim();
+
+            if (!int.TryParse(newIdText, out int newId))
+            {
+                MessageBox.Show("The ID must be a valid number.", "Invalid ID", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtNewCharId.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                MessageBox.Show("The Name cannot be empty.", "Invalid Name", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtNewCharName.Focus();
+                return;
+            }
+
+            // Check if the ID already exists in our list
+            if (CharacterData.AllCharacters.Any(c => c.Id == newId))
+            {
+                MessageBox.Show($"The Character ID '{newId}' already exists.", "Duplicate ID", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtNewCharId.Focus();
+                return;
+            }
+
+            // 2. If validation passes, create and add the character
+            var newCharacter = new CharacterInfo { Id = newId, Name = newName };
+            CharacterData.AddUserCharacter(newCharacter);
+
+            // 3. Refresh the ComboBox to show the new entry
+            // A simple way to do this is to reset the DataSource.
+            cmbChrSelection.DataSource = null; // Detach the old list
+            cmbChrSelection.DataSource = CharacterData.AllCharacters; // Re-attach the updated list
+
+            // 4. Select the newly added item for the user
+            cmbChrSelection.SelectedItem = newCharacter;
+
+            // 5. Give feedback and clear the input boxes
+            MessageBox.Show($"Successfully added '{newCharacter.Name}'.", "Entry Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            txtNewCharId.Clear();
+            txtNewCharName.Clear();
+        }
     }
 }
