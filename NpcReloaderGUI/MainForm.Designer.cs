@@ -40,11 +40,11 @@
             cmbChrSelection = new ComboBox();
             labelCharacterName = new Label();
             groupBox2 = new GroupBox();
-            label2 = new Label();
-            txtNewCharId = new TextBox();
+            btnAddChar = new Button();
             txtNewCharName = new TextBox();
             label4 = new Label();
-            btnAddChar = new Button();
+            txtNewCharId = new TextBox();
+            label2 = new Label();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             SuspendLayout();
@@ -71,9 +71,10 @@
             // 
             // btnReload
             // 
-            btnReload.Location = new Point(7, 526);
+            btnReload.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            btnReload.Location = new Point(9, 539);
             btnReload.Name = "btnReload";
-            btnReload.Size = new Size(149, 34);
+            btnReload.Size = new Size(130, 43);
             btnReload.TabIndex = 4;
             btnReload.Text = "Reload NPC";
             btnReload.UseVisualStyleBackColor = true;
@@ -81,14 +82,14 @@
             // 
             // groupBox1
             // 
-            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox1.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             groupBox1.Controls.Add(btnBrowseScript);
             groupBox1.Controls.Add(txtScriptPath);
             groupBox1.Controls.Add(label3);
             groupBox1.Controls.Add(chkAutoReload);
-            groupBox1.Location = new Point(9, 162);
+            groupBox1.Location = new Point(9, 157);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(388, 202);
+            groupBox1.Size = new Size(369, 143);
             groupBox1.TabIndex = 5;
             groupBox1.TabStop = false;
             groupBox1.Text = "Auto Reload";
@@ -134,7 +135,7 @@
             // txtLog
             // 
             txtLog.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            txtLog.Location = new Point(484, 0);
+            txtLog.Location = new Point(465, 0);
             txtLog.Multiline = true;
             txtLog.Name = "txtLog";
             txtLog.ReadOnly = true;
@@ -149,7 +150,7 @@
             cmbChrSelection.FormattingEnabled = true;
             cmbChrSelection.Location = new Point(7, 109);
             cmbChrSelection.Name = "cmbChrSelection";
-            cmbChrSelection.Size = new Size(262, 33);
+            cmbChrSelection.Size = new Size(243, 33);
             cmbChrSelection.TabIndex = 7;
             // 
             // labelCharacterName
@@ -169,48 +170,16 @@
             groupBox2.Controls.Add(label4);
             groupBox2.Controls.Add(txtNewCharId);
             groupBox2.Controls.Add(label2);
-            groupBox2.Location = new Point(9, 370);
+            groupBox2.Location = new Point(9, 328);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(300, 150);
+            groupBox2.Size = new Size(300, 179);
             groupBox2.TabIndex = 8;
             groupBox2.TabStop = false;
             groupBox2.Text = "Add New Character";
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(6, 27);
-            label2.Name = "label2";
-            label2.Size = new Size(30, 25);
-            label2.TabIndex = 0;
-            label2.Text = "ID";
-            // 
-            // txtNewCharId
-            // 
-            txtNewCharId.Location = new Point(42, 30);
-            txtNewCharId.Name = "txtNewCharId";
-            txtNewCharId.Size = new Size(150, 31);
-            txtNewCharId.TabIndex = 1;
-            // 
-            // txtNewCharName
-            // 
-            txtNewCharName.Location = new Point(71, 67);
-            txtNewCharName.Name = "txtNewCharName";
-            txtNewCharName.Size = new Size(150, 31);
-            txtNewCharName.TabIndex = 3;
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(6, 64);
-            label4.Name = "label4";
-            label4.Size = new Size(59, 25);
-            label4.TabIndex = 2;
-            label4.Text = "Name";
-            // 
             // btnAddChar
             // 
-            btnAddChar.Location = new Point(6, 104);
+            btnAddChar.Location = new Point(6, 139);
             btnAddChar.Name = "btnAddChar";
             btnAddChar.Size = new Size(112, 34);
             btnAddChar.TabIndex = 4;
@@ -218,11 +187,44 @@
             btnAddChar.UseVisualStyleBackColor = true;
             btnAddChar.Click += btnAddChar_Click;
             // 
+            // txtNewCharName
+            // 
+            txtNewCharName.Location = new Point(76, 74);
+            txtNewCharName.Name = "txtNewCharName";
+            txtNewCharName.Size = new Size(150, 31);
+            txtNewCharName.TabIndex = 3;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(11, 71);
+            label4.Name = "label4";
+            label4.Size = new Size(59, 25);
+            label4.TabIndex = 2;
+            label4.Text = "Name";
+            // 
+            // txtNewCharId
+            // 
+            txtNewCharId.Location = new Point(76, 37);
+            txtNewCharId.Name = "txtNewCharId";
+            txtNewCharId.Size = new Size(150, 31);
+            txtNewCharId.TabIndex = 1;
+            txtNewCharId.TextChanged += txtNewCharId_TextChanged;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(11, 34);
+            label2.Name = "label2";
+            label2.Size = new Size(30, 25);
+            label2.TabIndex = 0;
+            label2.Text = "ID";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(761, 648);
+            ClientSize = new Size(742, 595);
             Controls.Add(groupBox2);
             Controls.Add(cmbChrSelection);
             Controls.Add(labelCharacterName);

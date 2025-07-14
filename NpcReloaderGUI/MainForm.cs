@@ -24,7 +24,7 @@ namespace NpcReloaderGUI
             // Set the LogAction in NpcReloaderLogic to update our TextBox
             NpcReloaderLogic.LogAction = LogMessage;
             // Call the new setup method
-            SetupCharacterComboBox();
+            RefreshCharacterComboBox();
         }
 
         private void InitializeFileWatcher()
@@ -41,29 +41,41 @@ namespace NpcReloaderGUI
         }
 
         // +++ ADD THIS NEW METHOD +++
-        private void SetupCharacterComboBox()
+        private void RefreshCharacterComboBox(CharacterInfo charToSelect = null)
         {
-            // Set the data source to our global list of characters.
-            cmbChrSelection.DataSource = CharacterData.AllCharacters;
+            // 1. Get the latest, sorted list of characters.
+            // The CharacterData class already loads built-in and user characters on startup.
+            var characterList = CharacterData.AllCharacters;
 
-            // Configure the search/autocomplete functionality.
+            // 2. Detach the data source completely to reset the ComboBox state.
+            cmbChrSelection.DataSource = null;
+            cmbChrSelection.Items.Clear();
+
+            // 3. Set up the auto-complete with a CUSTOM source. This is the key fix.
+            // We will build our own list of strings for the auto-complete to use.
+            var autoCompleteSource = new AutoCompleteStringCollection();
+            autoCompleteSource.AddRange(characterList.Select(c => c.ToString()).ToArray());
+
             cmbChrSelection.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            cmbChrSelection.AutoCompleteSource = AutoCompleteSource.ListItems;
+            cmbChrSelection.AutoCompleteSource = AutoCompleteSource.CustomSource; // <-- Use CustomSource!
+            cmbChrSelection.AutoCompleteCustomSource = autoCompleteSource;
 
-            // Set the ComboBox style to allow typing custom text
-            cmbChrSelection.DropDownStyle = ComboBoxStyle.DropDown;
+            // 4. Re-bind the updated list to the ComboBox.
+            cmbChrSelection.DataSource = characterList;
 
-            // Select a default character, e.g. Radagon (c2190)
-            var radagon = CharacterData.AllCharacters.FirstOrDefault(c => c.Id == 2190);
-            if (radagon != null)
+            // 5. Optionally select an item.
+            if (charToSelect != null)
             {
-                cmbChrSelection.SelectedItem = radagon;
+                cmbChrSelection.SelectedItem = charToSelect;
             }
             else if (cmbChrSelection.Items.Count > 0)
             {
-                cmbChrSelection.SelectedIndex = 0; // Fallback to first item
+                // Fallback to a default if nothing is specified.
+                var radagon = characterList.FirstOrDefault(c => c.Id == 2190);
+                cmbChrSelection.SelectedItem = radagon ?? characterList.First();
             }
         }
+
         // --- UI Event Handlers ---
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -425,7 +437,7 @@ namespace NpcReloaderGUI
         // This is the new event handler for the "Add Entry" button.
         private void btnAddChar_Click(object sender, EventArgs e)
         {
-            // 1. Get and Validate Input
+            // 1. Get and Validate Input (This part is unchanged)
             string newIdText = txtNewCharId.Text.Trim();
             string newName = txtNewCharName.Text.Trim();
 
@@ -435,15 +447,12 @@ namespace NpcReloaderGUI
                 txtNewCharId.Focus();
                 return;
             }
-
             if (string.IsNullOrWhiteSpace(newName))
             {
                 MessageBox.Show("The Name cannot be empty.", "Invalid Name", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtNewCharName.Focus();
                 return;
             }
-
-            // Check if the ID already exists in our list
             if (CharacterData.AllCharacters.Any(c => c.Id == newId))
             {
                 MessageBox.Show($"The Character ID '{newId}' already exists.", "Duplicate ID", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -451,22 +460,24 @@ namespace NpcReloaderGUI
                 return;
             }
 
-            // 2. If validation passes, create and add the character
+            // 2. Create the new character object
             var newCharacter = new CharacterInfo { Id = newId, Name = newName };
+
+            // 3. Add the character to our data source and save it to the file
             CharacterData.AddUserCharacter(newCharacter);
 
-            // 3. Refresh the ComboBox to show the new entry
-            // A simple way to do this is to reset the DataSource.
-            cmbChrSelection.DataSource = null; // Detach the old list
-            cmbChrSelection.DataSource = CharacterData.AllCharacters; // Re-attach the updated list
-
-            // 4. Select the newly added item for the user
-            cmbChrSelection.SelectedItem = newCharacter;
+            // 4. Call our new robust refresh method, telling it which character to select
+            RefreshCharacterComboBox(newCharacter); // <-- THIS IS THE NEW PART
 
             // 5. Give feedback and clear the input boxes
             MessageBox.Show($"Successfully added '{newCharacter.Name}'.", "Entry Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
             txtNewCharId.Clear();
             txtNewCharName.Clear();
+        }
+
+        private void txtNewCharId_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
