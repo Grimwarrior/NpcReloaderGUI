@@ -134,18 +134,18 @@ namespace NpcReloaderGUI
             // =========================================================
             // CRITICAL ADDITION: Re-scan AOBs on every request for modern games.
             // This ensures we always have a fresh pointer and prevents crashes after in-game reloads.
-            if (gameType == SoulsGames.ER) // Or other modern games like AC6
-            {
-                Log("Re-scanning for fresh Elden Ring pointers before injection...");
-                if (!Core.Memory.UpdateEldenRingAobs())
-                {
-                    Log("ERROR: Failed to find required pointers during pre-reload scan. Aborting.");
-                    // Optionally show a message box here
-                    // ShowInjectionFailed(gameType, "Could not find required memory patterns. The game may have been patched or is in a strange state.");
-                    return false;
-                }
-                Log("Fresh pointers acquired.");
-            }
+            //if (gameType == SoulsGames.ER) // Or other modern games like AC6
+            //{
+            //    Log("Re-scanning for fresh Elden Ring pointers before injection...");
+            //    if (!Core.Memory.UpdateEldenRingAobs())
+            //    {
+            //        Log("ERROR: Failed to find required pointers during pre-reload scan. Aborting.");
+            //        // Optionally show a message box here
+            //        // ShowInjectionFailed(gameType, "Could not find required memory patterns. The game may have been patched or is in a strange state.");
+            //        return false;
+            //    }
+            //    Log("Fresh pointers acquired.");
+            //}
             // =========================================================
             Log($"Requesting reload for Chr [{chrName}] in {gameType}...");
 
@@ -950,6 +950,746 @@ namespace NpcReloaderGUI
         //} // not working
 
         // In NpcReloaderGUI.NpcReloaderLogic.cs
+        //private static bool ReloadEldenRing(byte[] chrNameBytes) // works but crashes in some cases when reloading a NPC
+        //{
+        //    // --- 1. Pointer Sanity Check ---
+        //    if (Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //    {
+        //        Log("ERROR: Required pointers not found. Retrying AOB scan...");
+        //        if (!Core.Memory.UpdateEldenRingAobs() || Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "AOB scan failed. Cannot find necessary memory addresses.");
+        //            return false;
+        //        }
+        //        Log("AOB scan re-run successful.");
+        //    }
+
+        //    IntPtr chrReloadAsm = IntPtr.Zero;
+        //    IntPtr chrReloadData = IntPtr.Zero;
+        //    bool success = false;
+        //    const int allocSize = 512;
+
+        //    try
+        //    {
+        //        // --- 2. Allocate Memory ---
+        //        chrReloadAsm = Core.Memory.AllocateMemory(allocSize);
+        //        chrReloadData = Core.Memory.AllocateMemory(allocSize);
+
+        //        if (chrReloadAsm == IntPtr.Zero || chrReloadData == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "VirtualAllocEx failed.");
+        //            return false;
+        //        }
+        //        Log($"Allocated Memory: ASM @ 0x{chrReloadAsm.ToInt64():X}, Data @ 0x{chrReloadData.ToInt64():X}");
+
+        //        // --- 3. Prepare Injected Data Structure (EXACT DSAS LOGIC) ---
+        //        // This is a direct translation of the original working code.
+        //        // It calculates a 'dataPointer' and writes it to offset 0x8 of our allocated block.
+        //        // This seems to be a pointer used for list linking or validation by the game.
+        //        long dataPointer = Core.Memory.ReadInt64(
+        //            (IntPtr)Core.Memory.ReadInt64(
+        //                (IntPtr)(Core.Memory.EldenRing_WorldChrManPtr.ToInt64() + EldenRingConfig.AsmPatch_Offset1)
+        //            ) + 0x0
+        //        );
+
+        //        // Write the required fields into the 'chrReloadData' block.
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x8), dataPointer);
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x58), chrReloadData.ToInt64() + 0x100);
+        //        Core.Memory.WriteInt8((IntPtr)(chrReloadData.ToInt64() + 0x70), 0x1F);
+        //        Core.Memory.WriteBytes((IntPtr)(chrReloadData.ToInt64() + 0x100), chrNameBytes);
+        //        Log("Prepared and wrote reload data structure using direct DSAS logic.");
+
+        //        // --- 4. Apply Crash Fix Patch ---
+        //        if (!Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, EldenRingConfig.CrashFixWriteBytes))
+        //        {
+        //            Log($"WARNING: Failed to write crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}.");
+        //        }
+        //        else
+        //        {
+        //            Log($"Applied crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}");
+        //        }
+
+        //        // --- 5. Prepare and Patch Assembly Shellcode ---
+        //        // This shellcode is identical to the one that works in DSAS.
+        //        var buffer = new byte[]
+        //        {
+        //     0x48, 0xBB, 0, 0, 0, 0, 0, 0, 0, 0, // mov rbx, [chrReloadData address]
+        //     0x48, 0xB9, 0, 0, 0, 0, 0, 0, 0, 0, // mov rcx, [WorldChrManPtr address]
+        //     0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
+        //     0x48, 0x89, 0x1A,                   // mov [rdx],rbx
+        //     0x48, 0x89, 0x13,                   // mov [rbx],rdx
+        //     0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
+        //     0x48, 0x89, 0x5A, 0x08,             // mov [rdx+08],rbx
+        //     0x48, 0x89, 0x53, 0x08,             // mov [rbx+08],rdx
+        //     0xC7, 0x81, 0, 0, 0, 0, 1, 0, 0, 0, // mov [rcx + Offset2], 1
+        //     0xC7, 0x81, 0, 0, 0, 0, 0, 0, 0x20, 0x41, // mov [rcx + Offset3], 10.0f
+        //     0xC3,                               // ret
+        //        };
+
+        //        // Patch addresses and offsets into the shellcode.
+        //        Array.Copy(BitConverter.GetBytes(chrReloadData.ToInt64()), 0, buffer, 0x2, 8);
+        //        Array.Copy(BitConverter.GetBytes(Core.Memory.EldenRing_WorldChrManPtr.ToInt64()), 0, buffer, 0xC, 8);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x17, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x24, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset2), 0, buffer, 0x32, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset3), 0, buffer, 0x3C, 4);
+        //        Log("Patched shellcode with dynamic addresses and offsets.");
+
+        //        // **NEW: Add a small delay RIGHT AFTER PATCHING**
+        //        // This gives the system time to ensure the write is committed before we execute code that relies on it.
+        //        System.Threading.Thread.Sleep(50); // 50ms delay
+
+        //        // --- 6. Write and Execute ---
+        //        //if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
+        //        //{
+        //        //    ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory failed for the ASM buffer.");
+        //        //    return false;
+        //        //}
+
+        //        //IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
+        //        //if (threadHandle != IntPtr.Zero)
+        //        //{
+        //        //    Core.Memory.WaitForThread(threadHandle, 5000);
+        //        //    Core.Memory.CloseThreadHandle(threadHandle);
+        //        //    success = true;
+        //        //}
+        //        //else
+        //        //{
+        //        //    success = false;
+        //        //}
+        //        // --- 6. Write and Execute ---
+        //        if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory failed for the ASM buffer.");
+        //            return false;
+        //        }
+
+        //        IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
+        //        if (threadHandle != IntPtr.Zero)
+        //        {
+        //            Log("Remote thread created. Waiting for completion (max 5s)...");
+        //            Core.Memory.WaitForThread(threadHandle, 5000);
+        //            Core.Memory.CloseThreadHandle(threadHandle);
+        //            Log("Remote thread finished.");
+
+        //            // =========================================================
+        //            // CRITICAL ADDITION: Add a small delay BEFORE freeing memory.
+        //            // Give the game time to process the reload request triggered by the thread.
+        //            Log("Delaying for 250ms before memory cleanup to prevent race condition...");
+        //            System.Threading.Thread.Sleep(500); // 250 milliseconds
+        //                                                // =========================================================
+
+        //            success = true;
+        //        }
+        //        else
+        //        {
+        //            // Error logged in ExecuteRemoteFunction
+        //            success = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log($"FATAL ERROR during Elden Ring reload: {ex.Message}\n{ex.StackTrace}");
+        //        ShowInjectionFailed(SoulsGames.ER, $"An exception occurred: {ex.Message}");
+        //        success = false;
+        //    }
+        //    finally
+        //    {
+        //        if (chrReloadAsm != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadAsm);
+        //        if (chrReloadData != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadData);
+        //        Log($"Cleaned up allocated memory. Reload success: {success}");
+        //    }
+        //    return success;
+        //}
+
+
+        // In NpcReloaderLogic.cs
+        //private static bool ReloadEldenRing(byte[] chrNameBytes) // works but crashes in some cases when reloading a NPC
+        //{
+        //    // --- 1. Pointer Sanity Check ---
+        //    if (Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //    {
+        //        Log("ERROR: Required pointers not found. Retrying AOB scan...");
+        //        if (!Core.Memory.UpdateEldenRingAobs() || Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "AOB scan failed. Cannot find necessary memory addresses.");
+        //            return false;
+        //        }
+        //        Log("AOB scan re-run successful.");
+        //    }
+
+        //    IntPtr chrReloadAsm = IntPtr.Zero;
+        //    IntPtr chrReloadData = IntPtr.Zero;
+        //    bool success = false;
+        //    const int allocSize = 512;
+
+        //    // This variable will hold the game's original code.
+        //    byte[] originalCrashFixBytes = null;
+
+        //    try
+        //    {
+        //        // --- PRE-STEP: READ & STORE, THEN PATCH ---
+        //        // This is the new logic to make the patch temporary.
+        //        byte[] patchBytes = EldenRingConfig.CrashFixWriteBytes;
+        //        originalCrashFixBytes = Core.Memory.ReadBytes(Core.Memory.EldenRing_CrashFixPtr, patchBytes.Length);
+
+        //        if (originalCrashFixBytes == null)
+        //        {
+        //            Log("ERROR: Could not read original game code to apply temporary patch. Aborting reload.");
+        //            ShowInjectionFailed(SoulsGames.ER, "Failed to read memory for patching.");
+        //            return false; // Can't proceed safely without this.
+        //        }
+
+        //        // Apply the patch now that we've saved the original bytes.
+        //        if (!Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, patchBytes))
+        //        {
+        //            Log($"WARNING: Failed to write crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}.");
+        //            // We could continue, but it's risky. For now, we'll let it proceed.
+        //        }
+        //        else
+        //        {
+        //            Log($"Applied temporary crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}");
+        //        }
+
+
+        //        // --- 2. Allocate Memory ---
+        //        chrReloadAsm = Core.Memory.AllocateMemory(allocSize);
+        //        chrReloadData = Core.Memory.AllocateMemory(allocSize);
+
+        //        if (chrReloadAsm == IntPtr.Zero || chrReloadData == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "VirtualAllocEx failed.");
+        //            return false; // The 'finally' block will still run to un-patch.
+        //        }
+        //        Log($"Allocated Memory: ASM @ 0x{chrReloadAsm.ToInt64():X}, Data @ 0x{chrReloadData.ToInt64():X}");
+
+        //        // --- 3. Prepare Injected Data Structure (No changes here) ---
+        //        long dataPointer = Core.Memory.ReadInt64(
+        //            (IntPtr)Core.Memory.ReadInt64(
+        //                (IntPtr)(Core.Memory.EldenRing_WorldChrManPtr.ToInt64() + EldenRingConfig.AsmPatch_Offset1)
+        //            ) + 0x0
+        //        );
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x8), dataPointer);
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x58), chrReloadData.ToInt64() + 0x100);
+        //        Core.Memory.WriteInt8((IntPtr)(chrReloadData.ToInt64() + 0x70), 0x1F);
+        //        Core.Memory.WriteBytes((IntPtr)(chrReloadData.ToInt64() + 0x100), chrNameBytes);
+        //        Log("Prepared and wrote reload data structure using direct DSAS logic.");
+
+
+        //        // --- 4. Prepare and Patch Assembly Shellcode (No changes here) ---
+        //        var buffer = new byte[]
+        //        {
+        //            0x48, 0xBB, 0, 0, 0, 0, 0, 0, 0, 0, // mov rbx, [chrReloadData address]
+        //            0x48, 0xB9, 0, 0, 0, 0, 0, 0, 0, 0, // mov rcx, [WorldChrManPtr address]
+        //            0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
+        //            0x48, 0x89, 0x1A,                   // mov [rdx],rbx
+        //            0x48, 0x89, 0x13,                   // mov [rbx],rdx
+        //            0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
+        //            0x48, 0x89, 0x5A, 0x08,             // mov [rdx+08],rbx
+        //            0x48, 0x89, 0x53, 0x08,             // mov [rbx+08],rdx
+        //            0xC7, 0x81, 0, 0, 0, 0, 1, 0, 0, 0, // mov [rcx + Offset2], 1
+        //            0xC7, 0x81, 0, 0, 0, 0, 0, 0, 0x20, 0x41, // mov [rcx + Offset3], 10.0f
+        //            0xC3,                               // ret
+        //        };
+        //        Array.Copy(BitConverter.GetBytes(chrReloadData.ToInt64()), 0, buffer, 0x2, 8);
+        //        Array.Copy(BitConverter.GetBytes(Core.Memory.EldenRing_WorldChrManPtr.ToInt64()), 0, buffer, 0xC, 8);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x17, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x24, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset2), 0, buffer, 0x32, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset3), 0, buffer, 0x3C, 4);
+        //        Log("Patched shellcode with dynamic addresses and offsets.");
+
+        //        // --- 5. Write and Execute (No changes here) ---
+        //        if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory failed for the ASM buffer.");
+        //            return false;
+        //        }
+
+        //        IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
+        //        if (threadHandle != IntPtr.Zero)
+        //        {
+        //            Log("Remote thread created. Waiting for completion (max 5s)...");
+        //            Core.Memory.WaitForThread(threadHandle, 5000);
+        //            Core.Memory.CloseThreadHandle(threadHandle);
+        //            Log("Remote thread finished.");
+        //            Log("Delaying for 250ms before memory cleanup to prevent race condition...");
+        //            System.Threading.Thread.Sleep(250);
+        //            success = true;
+        //        }
+        //        else
+        //        {
+        //            success = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log($"FATAL ERROR during Elden Ring reload: {ex.Message}\n{ex.StackTrace}");
+        //        ShowInjectionFailed(SoulsGames.ER, $"An exception occurred: {ex.Message}");
+        //        success = false;
+        //    }
+        //    finally
+        //    {
+        //        // --- 6. UNPATCH and CLEAN UP ---
+        //        // This `finally` block GUARANTEES this code runs, even if an error happens.
+
+        //        // Restore the original game code
+        //        if (originalCrashFixBytes != null)
+        //        {
+        //            if (Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, originalCrashFixBytes))
+        //            {
+        //                Log("Successfully restored original game code (un-patched).");
+        //            }
+        //            else
+        //            {
+        //                Log("CRITICAL WARNING: FAILED to restore original game code. Game may be unstable.");
+        //            }
+        //        }
+
+        //        // Free the memory we allocated in the game
+        //        if (chrReloadAsm != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadAsm);
+        //        if (chrReloadData != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadData);
+        //        Log($"Cleaned up allocated memory. Reload success: {success}");
+        //    }
+        //    return success;
+        //}
+
+        // In NpcReloaderLogic.cs
+        //private static bool ReloadEldenRing(byte[] chrNameBytes) // works but crashes in some cases when reloading a NPC last
+        //{
+        //    //---1.Pointer Sanity Check ---
+        //        if (Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //    {
+        //        Log("ERROR: Required pointers not found. Retrying AOB scan...");
+        //        if (!Core.Memory.UpdateEldenRingAobs() || Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "AOB scan failed. Cannot find necessary memory addresses.");
+        //            return false;
+        //        }
+        //        Log("AOB scan re-run successful.");
+        //    }
+
+
+        //    IntPtr chrReloadAsm = IntPtr.Zero;
+        //    IntPtr chrReloadData = IntPtr.Zero;
+        //    bool success = false;
+        //    const int allocSize = 512;
+
+        //    // This variable will hold the game's original code.
+        //    byte[] originalCrashFixBytes = null;
+
+        //    try
+        //    {
+        //        // --- PRE-STEP: READ & STORE, THEN PATCH ---
+        //        // This is the new logic to make the patch temporary.
+        //        byte[] patchBytes = EldenRingConfig.CrashFixWriteBytes;
+        //        originalCrashFixBytes = Core.Memory.ReadBytes(Core.Memory.EldenRing_CrashFixPtr, patchBytes.Length);
+
+        //        if (originalCrashFixBytes == null)
+        //        {
+        //            Log("ERROR: Could not read original game code to apply temporary patch. Aborting reload.");
+        //            ShowInjectionFailed(SoulsGames.ER, "Failed to read memory for patching.");
+        //            return false; // Can't proceed safely without this.
+        //        }
+
+        //        // Apply the patch now that we've saved the original bytes.
+        //        if (!Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, patchBytes))
+        //        {
+        //            Log($"WARNING: Failed to write crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}.");
+        //            // We could continue, but it's risky. For now, we'll let it proceed.
+        //        }
+        //        else
+        //        {
+        //            Log($"Applied temporary crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}");
+        //        }
+
+        //        // **NEW: Add a small delay RIGHT AFTER PATCHING**
+        //        // This gives the system time to ensure the write is committed before we execute code that relies on it.
+        //        System.Threading.Thread.Sleep(50); // 50ms delay
+
+        //        // --- 2. Allocate Memory ---
+        //        chrReloadAsm = Core.Memory.AllocateMemory(allocSize);
+        //        chrReloadData = Core.Memory.AllocateMemory(allocSize);
+
+        //        if (chrReloadAsm == IntPtr.Zero || chrReloadData == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "VirtualAllocEx failed.");
+        //            return false; // The 'finally' block will still run to un-patch.
+        //        }
+        //        Log($"Allocated Memory: ASM @ 0x{chrReloadAsm.ToInt64():X}, Data @ 0x{chrReloadData.ToInt64():X}");
+
+        //        // --- 3. Prepare Injected Data Structure (No changes here) ---
+        //        long dataPointer = Core.Memory.ReadInt64(
+        //            (IntPtr)Core.Memory.ReadInt64(
+        //                (IntPtr)(Core.Memory.EldenRing_WorldChrManPtr.ToInt64() + EldenRingConfig.AsmPatch_Offset1)
+        //            ) + 0x0
+        //        );
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x8), dataPointer);
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x58), chrReloadData.ToInt64() + 0x100);
+        //        Core.Memory.WriteInt8((IntPtr)(chrReloadData.ToInt64() + 0x70), 0x1F);
+        //        Core.Memory.WriteBytes((IntPtr)(chrReloadData.ToInt64() + 0x100), chrNameBytes);
+        //        Log("Prepared and wrote reload data structure using direct DSAS logic.");
+
+
+        //        // --- 4. Prepare and Patch Assembly Shellcode (No changes here) ---
+        //        var buffer = new byte[]
+        //        {
+        //            0x48, 0xBB, 0, 0, 0, 0, 0, 0, 0, 0, // mov rbx, [chrReloadData address]
+        //            0x48, 0xB9, 0, 0, 0, 0, 0, 0, 0, 0, // mov rcx, [WorldChrManPtr address]
+        //            0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
+        //            0x48, 0x89, 0x1A,                   // mov [rdx],rbx
+        //            0x48, 0x89, 0x13,                   // mov [rbx],rdx
+        //            0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
+        //            0x48, 0x89, 0x5A, 0x08,             // mov [rdx+08],rbx
+        //            0x48, 0x89, 0x53, 0x08,             // mov [rbx+08],rdx
+        //            0xC7, 0x81, 0, 0, 0, 0, 1, 0, 0, 0, // mov [rcx + Offset2], 1
+        //            0xC7, 0x81, 0, 0, 0, 0, 0, 0, 0x20, 0x41, // mov [rcx + Offset3], 10.0f
+        //            0xC3,                               // ret
+        //        };
+        //        Array.Copy(BitConverter.GetBytes(chrReloadData.ToInt64()), 0, buffer, 0x2, 8);
+        //        Array.Copy(BitConverter.GetBytes(Core.Memory.EldenRing_WorldChrManPtr.ToInt64()), 0, buffer, 0xC, 8);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x17, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x24, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset2), 0, buffer, 0x32, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset3), 0, buffer, 0x3C, 4);
+        //        Log("Patched shellcode with dynamic addresses and offsets.");
+
+        //        // --- 5. Write and Execute (No changes here) ---
+        //        if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory failed for the ASM buffer.");
+        //            return false;
+        //        }
+
+        //        IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
+        //        if (threadHandle != IntPtr.Zero)
+        //        {
+        //            Log("Remote thread created. Waiting for completion (max 5s)...");
+        //            Core.Memory.WaitForThread(threadHandle, 5000);
+        //            Core.Memory.CloseThreadHandle(threadHandle);
+        //            Log("Remote thread finished.");
+        //            Log("Delaying for 250ms before memory cleanup to prevent race condition...");
+        //            System.Threading.Thread.Sleep(500);
+        //            success = true;
+        //        }
+        //        else
+        //        {
+        //            success = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log($"FATAL ERROR during Elden Ring reload: {ex.Message}\n{ex.StackTrace}");
+        //        ShowInjectionFailed(SoulsGames.ER, $"An exception occurred: {ex.Message}");
+        //        success = false;
+        //    }
+        //    finally
+        //    {
+        //        // --- 6. UNPATCH and CLEAN UP ---
+        //        // This `finally` block GUARANTEES this code runs, even if an error happens.
+
+        //        // Restore the original game code
+        //        if (originalCrashFixBytes != null)
+        //        {
+        //            //if (Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, originalCrashFixBytes))
+        //            //{
+        //            //    Log("Successfully restored original game code (un-patched).");
+        //            //}
+        //            //else
+        //            //{
+        //            //    Log("CRITICAL WARNING: FAILED to restore original game code. Game may be unstable.");
+        //            //}
+        //            Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, originalCrashFixBytes);
+
+        //        }
+
+        //        // Free the memory we allocated in the game
+        //        if (chrReloadAsm != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadAsm);
+        //        if (chrReloadData != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadData);
+        //        Log($"Cleaned up allocated memory. Reload success: {success}");
+        //    }
+        //    return success;
+        //}
+
+        // In NpcReloaderLogic.cs
+        //private static bool ReloadEldenRing(byte[] chrNameBytes) // works but crashes in some cases when reloading a NPC last
+        //{
+        //    // --- 1. Pointer Sanity Check ---
+        //    if (Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //    {
+        //        Log("ERROR: Required pointers not found. Retrying AOB scan...");
+        //        if (!Core.Memory.UpdateEldenRingAobs() || Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "AOB scan failed. Cannot find necessary memory addresses.");
+        //            return false;
+        //        }
+        //        Log("AOB scan re-run successful.");
+        //    }
+
+        //    IntPtr chrReloadAsm = IntPtr.Zero;
+        //    IntPtr chrReloadData = IntPtr.Zero;
+        //    bool success = false;
+        //    const int allocSize = 512;
+
+        //    // This variable will hold the game's original code so we can restore it.
+        //    byte[] originalCrashFixBytes = null;
+
+        //    try
+        //    {
+        //        // --- 2. READ & STORE, THEN PATCH ---
+        //        Log("Applying temporary crash fix patch...");
+        //        byte[] patchBytes = EldenRingConfig.CrashFixWriteBytes;
+        //        originalCrashFixBytes = Core.Memory.ReadBytes(Core.Memory.EldenRing_CrashFixPtr, patchBytes.Length);
+
+        //        if (originalCrashFixBytes == null)
+        //        {
+        //            Log("ERROR: Could not read original game code for crash fix. Aborting.");
+        //            ShowInjectionFailed(SoulsGames.ER, "Failed to read memory for patching.");
+        //            return false;
+        //        }
+
+        //        // Apply the temporary patch
+        //        if (!Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, patchBytes))
+        //        {
+        //            Log($"WARNING: Failed to write crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}.");
+        //        }
+        //        else
+        //        {
+        //            Log($"Applied temporary crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}");
+        //        }
+
+        //        // --- 3. Allocate Memory ---
+        //        chrReloadAsm = Core.Memory.AllocateMemory(allocSize);
+        //        chrReloadData = Core.Memory.AllocateMemory(allocSize);
+
+        //        if (chrReloadAsm == IntPtr.Zero || chrReloadData == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "VirtualAllocEx failed.");
+        //            return false;
+        //        }
+        //        Log($"Allocated Memory: ASM @ 0x{chrReloadAsm.ToInt64():X}, Data @ 0x{chrReloadData.ToInt64():X}");
+
+        //        // --- 4. Prepare Injected Data Structure ---
+        //        long dataPointer = Core.Memory.ReadInt64(
+        //            (IntPtr)Core.Memory.ReadInt64(
+        //                (IntPtr)(Core.Memory.EldenRing_WorldChrManPtr.ToInt64() + EldenRingConfig.AsmPatch_Offset1)
+        //            ) + 0x0
+        //        );
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x8), dataPointer);
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x58), chrReloadData.ToInt64() + 0x100);
+        //        Core.Memory.WriteInt8((IntPtr)(chrReloadData.ToInt64() + 0x70), 0x1F);
+        //        Core.Memory.WriteBytes((IntPtr)(chrReloadData.ToInt64() + 0x100), chrNameBytes);
+        //        Log("Prepared and wrote reload data structure.");
+
+
+        //        // =======================================================================
+        //        // --- 5. CORRECTED SHELLCODE AND PATCHING ---
+        //        // =======================================================================
+        //        var buffer = new byte[]
+        //        {
+        //    // Index 0x00 -> 0x09 (10 bytes)
+        //    0x48, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rbx, [chrReloadData address]
+        //    // Index 0x0A -> 0x13 (10 bytes)
+        //    0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rcx, [WorldChrManPtr address]
+        //    // Index 0x14 -> 0x1A (7 bytes)
+        //    0x48, 0x8B, 0x91, 0x00, 0x00, 0x00, 0x00,                   // mov rdx,[rcx + Offset1]
+        //    // Index 0x1B -> 0x1D (3 bytes)
+        //    0x48, 0x89, 0x1A,                                           // mov [rdx],rbx
+        //    // Index 0x1E -> 0x20 (3 bytes)
+        //    0x48, 0x89, 0x13,                                           // mov [rbx],rdx
+        //    // Index 0x21 -> 0x27 (7 bytes)
+        //    0x48, 0x8B, 0x91, 0x00, 0x00, 0x00, 0x00,                   // mov rdx,[rcx + Offset1] (again)
+        //    // Index 0x28 -> 0x2B (4 bytes)
+        //    0x48, 0x89, 0x5A, 0x08,                                     // mov [rdx+08],rbx
+        //    // Index 0x2C -> 0x2F (4 bytes)
+        //    0x48, 0x89, 0x53, 0x08,                                     // mov [rbx+08],rdx
+        //    // Index 0x30 -> 0x39 (10 bytes)
+        //    0xC7, 0x81, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, // mov dword ptr [rcx + Offset2], 1
+        //    // Index 0x3A -> 0x43 (10 bytes)
+        //    0xC7, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x41, // mov dword ptr [rcx + Offset3], 10.0f
+        //    // Index 0x44 (1 byte)
+        //    0xC3                                                        // ret
+        //        };
+
+        //        // Patch addresses and offsets into the shellcode.
+        //        // These indices are now correct for the buffer above.
+        //        Array.Copy(BitConverter.GetBytes(chrReloadData.ToInt64()), 0, buffer, 0x2, 8);
+        //        Array.Copy(BitConverter.GetBytes(Core.Memory.EldenRing_WorldChrManPtr.ToInt64()), 0, buffer, 0xC, 8);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x17, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x24, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset2), 0, buffer, 0x32, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset3), 0, buffer, 0x3C, 4);
+        //        Log("Patched shellcode with dynamic addresses and offsets.");
+
+
+        //        // --- 6. Write and Execute ---
+        //        if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory for ASM buffer failed.");
+        //            return false;
+        //        }
+
+        //        IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
+        //        if (threadHandle != IntPtr.Zero)
+        //        {
+        //            Log("Remote thread created. Waiting for completion (max 5s)...");
+        //            Core.Memory.WaitForThread(threadHandle, 5000);
+        //            Core.Memory.CloseThreadHandle(threadHandle);
+        //            Log("Remote thread finished.");
+
+        //            Log("Delaying for 250ms before cleanup...");
+        //            System.Threading.Thread.Sleep(250);
+
+        //            success = true;
+        //        }
+        //        else
+        //        {
+        //            success = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log($"FATAL ERROR during Elden Ring reload: {ex.Message}\n{ex.StackTrace}");
+        //        ShowInjectionFailed(SoulsGames.ER, $"An exception occurred: {ex.Message}");
+        //        success = false;
+        //    }
+        //    finally
+        //    {
+        //        // --- 7. UNPATCH AND CLEAN UP ---
+        //        if (originalCrashFixBytes != null)
+        //        {
+        //            if (Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, originalCrashFixBytes))
+        //            {
+        //                Log("Successfully restored original game code (un-patched).");
+        //            }
+        //            else
+        //            {
+        //                Log("CRITICAL WARNING: FAILED to restore original game code. Game may be unstable.");
+        //            }
+        //        }
+
+        //        if (chrReloadAsm != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadAsm);
+        //        if (chrReloadData != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadData);
+        //        Log($"Cleaned up allocated memory. Reload success: {success}");
+        //    }
+        //    return success;
+        //}
+
+        // In NpcReloaderLogic.cs
+        //private static bool ReloadEldenRing(byte[] chrNameBytes) // works but crashes in some cases when reloading a NPC last
+        //{
+        //    // --- 1. Pointer Sanity Check ---
+        //    if (Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //    {
+        //        Log("ERROR: Required pointers not found. Retrying AOB scan...");
+        //        if (!Core.Memory.UpdateEldenRingAobs() || Core.Memory.EldenRing_WorldChrManPtr == IntPtr.Zero || Core.Memory.EldenRing_CrashFixPtr == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "AOB scan failed. Cannot find necessary memory addresses.");
+        //            return false;
+        //        }
+        //        Log("AOB scan re-run successful.");
+        //    }
+
+        //    IntPtr chrReloadAsm = IntPtr.Zero;
+        //    IntPtr chrReloadData = IntPtr.Zero;
+        //    bool success = false;
+        //    const int allocSize = 512;
+
+        //    try
+        //    {
+        //        // --- 2. Allocate Memory ---
+        //        chrReloadAsm = Core.Memory.AllocateMemory(allocSize);
+        //        chrReloadData = Core.Memory.AllocateMemory(allocSize);
+
+        //        if (chrReloadAsm == IntPtr.Zero || chrReloadData == IntPtr.Zero)
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "VirtualAllocEx failed.");
+        //            return false;
+        //        }
+        //        Log($"Allocated Memory: ASM @ 0x{chrReloadAsm.ToInt64():X}, Data @ 0x{chrReloadData.ToInt64():X}");
+
+        //        // --- 3. Prepare Injected Data Structure ---
+        //        long dataPointer = Core.Memory.ReadInt64(
+        //            (IntPtr)Core.Memory.ReadInt64(
+        //                (IntPtr)(Core.Memory.EldenRing_WorldChrManPtr.ToInt64() + EldenRingConfig.AsmPatch_Offset1)
+        //            ) + 0x0
+        //        );
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x8), dataPointer);
+        //        Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x58), chrReloadData.ToInt64() + 0x100);
+        //        Core.Memory.WriteInt8((IntPtr)(chrReloadData.ToInt64() + 0x70), 0x1F);
+        //        Core.Memory.WriteBytes((IntPtr)(chrReloadData.ToInt64() + 0x100), chrNameBytes);
+        //        Log("Prepared and wrote reload data structure.");
+
+        //        // --- 4. APPLY PERMANENT PATCH (DSAS Method) ---
+        //        if (!Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, EldenRingConfig.CrashFixWriteBytes))
+        //        {
+        //            Log($"WARNING: Failed to write crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}.");
+        //        }
+        //        else
+        //        {
+        //            Log($"Applied crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}");
+        //        }
+
+        //        // --- 5. Prepare and Patch Assembly Shellcode ---
+        //        var buffer = new byte[]
+        //        {
+        //    0x48, 0xBB, 0, 0, 0, 0, 0, 0, 0, 0,
+        //    0x48, 0xB9, 0, 0, 0, 0, 0, 0, 0, 0,
+        //    0x48, 0x8B, 0x91, 0, 0, 0, 0,
+        //    0x48, 0x89, 0x1A,
+        //    0x48, 0x89, 0x13,
+        //    0x48, 0x8B, 0x91, 0, 0, 0, 0,
+        //    0x48, 0x89, 0x5A, 0x08,
+        //    0x48, 0x89, 0x53, 0x08,
+        //    0xC7, 0x81, 0, 0, 0, 0, 1, 0, 0, 0,
+        //    0xC7, 0x81, 0, 0, 0, 0, 0, 0, 0x20, 0x41,
+        //    0xC3,
+        //        };
+        //        Array.Copy(BitConverter.GetBytes(chrReloadData.ToInt64()), 0, buffer, 0x2, 8);
+        //        Array.Copy(BitConverter.GetBytes(Core.Memory.EldenRing_WorldChrManPtr.ToInt64()), 0, buffer, 0xC, 8);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x17, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x24, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset2), 0, buffer, 0x32, 4);
+        //        Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset3), 0, buffer, 0x3C, 4);
+        //        Log("Patched shellcode.");
+
+        //        // --- 6. Write and Execute ---
+        //        if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
+        //        {
+        //            ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory for ASM buffer failed.");
+        //            return false;
+        //        }
+
+        //        IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
+        //        if (threadHandle != IntPtr.Zero)
+        //        {
+        //            Core.Memory.WaitForThread(threadHandle, 5000);
+        //            Core.Memory.CloseThreadHandle(threadHandle);
+        //            Log("Remote thread finished.");
+        //            Log("Delaying for 250ms before freeing memory...");
+        //            System.Threading.Thread.Sleep(500);
+        //            success = true;
+        //        }
+        //        else { success = false; }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log($"FATAL ERROR during Elden Ring reload: {ex.Message}\n{ex.StackTrace}");
+        //        ShowInjectionFailed(SoulsGames.ER, $"An exception occurred: {ex.Message}");
+        //        success = false;
+        //    }
+        //    finally
+        //    {
+        //        // --- 7. Clean up (NO UN-PATCHING) ---
+        //        if (chrReloadAsm != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadAsm);
+        //        if (chrReloadData != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadData);
+        //        Log($"Cleaned up allocated memory. Reload success: {success}");
+        //    }
+        //    return success;
+        //}
+
+        // In NpcReloaderLogic.cs
+
         private static bool ReloadEldenRing(byte[] chrNameBytes)
         {
             // --- 1. Pointer Sanity Check ---
@@ -963,6 +1703,11 @@ namespace NpcReloaderGUI
                 }
                 Log("AOB scan re-run successful.");
             }
+            // Give the game engine a brief moment to finish any high-frequency
+            // combat loop operations before we attempt to modify its memory.
+            // This dramatically reduces the chance of a race condition.
+            Log("Applying a brief pre-injection cooldown for game state stability...");
+            System.Threading.Thread.Sleep(100); // 100ms is a good starting point
 
             IntPtr chrReloadAsm = IntPtr.Zero;
             IntPtr chrReloadData = IntPtr.Zero;
@@ -982,24 +1727,27 @@ namespace NpcReloaderGUI
                 }
                 Log($"Allocated Memory: ASM @ 0x{chrReloadAsm.ToInt64():X}, Data @ 0x{chrReloadData.ToInt64():X}");
 
-                // --- 3. Prepare Injected Data Structure (EXACT DSAS LOGIC) ---
-                // This is a direct translation of the original working code.
-                // It calculates a 'dataPointer' and writes it to offset 0x8 of our allocated block.
-                // This seems to be a pointer used for list linking or validation by the game.
-                long dataPointer = Core.Memory.ReadInt64(
+                // =======================================================================
+                // --- 3. CORRECTED Data Structure Preparation (The Fix) ---
+                // This is a direct translation of the working logic from DSAnimStudio.
+                // =======================================================================
+
+                // This calculates a pointer that the game's internal list uses for linking.
+                long dataPointerForList = Core.Memory.ReadInt64(
                     (IntPtr)Core.Memory.ReadInt64(
                         (IntPtr)(Core.Memory.EldenRing_WorldChrManPtr.ToInt64() + EldenRingConfig.AsmPatch_Offset1)
                     ) + 0x0
                 );
 
                 // Write the required fields into the 'chrReloadData' block.
-                Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x8), dataPointer);
-                Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x58), chrReloadData.ToInt64() + 0x100);
-                Core.Memory.WriteInt8((IntPtr)(chrReloadData.ToInt64() + 0x70), 0x1F);
-                Core.Memory.WriteBytes((IntPtr)(chrReloadData.ToInt64() + 0x100), chrNameBytes);
-                Log("Prepared and wrote reload data structure using direct DSAS logic.");
+                Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x8), dataPointerForList); // Pointer for list linking.
+                Core.Memory.WriteInt64((IntPtr)(chrReloadData.ToInt64() + 0x58), chrReloadData.ToInt64() + 0x100); // Pointer to our string.
+                Core.Memory.WriteInt8((IntPtr)(chrReloadData.ToInt64() + 0x70), 0x1F); // String length/flag.
+                Core.Memory.WriteBytes((IntPtr)(chrReloadData.ToInt64() + 0x100), chrNameBytes); // The NPC name string itself.
+                Log("Prepared and wrote reload data structure.");
 
-                // --- 4. Apply Crash Fix Patch ---
+
+                // --- 4. APPLY PERMANENT PATCH (DSAS Method) ---
                 if (!Core.Memory.WriteBytes(Core.Memory.EldenRing_CrashFixPtr, EldenRingConfig.CrashFixWriteBytes))
                 {
                     Log($"WARNING: Failed to write crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}.");
@@ -1009,79 +1757,47 @@ namespace NpcReloaderGUI
                     Log($"Applied crash fix patch at 0x{Core.Memory.EldenRing_CrashFixPtr.ToInt64():X}");
                 }
 
-                // --- 5. Prepare and Patch Assembly Shellcode ---
-                // This shellcode is identical to the one that works in DSAS.
+                // --- 5. Prepare and Patch Assembly Shellcode (No changes needed here) ---
                 var buffer = new byte[]
                 {
-            0x48, 0xBB, 0, 0, 0, 0, 0, 0, 0, 0, // mov rbx, [chrReloadData address]
-            0x48, 0xB9, 0, 0, 0, 0, 0, 0, 0, 0, // mov rcx, [WorldChrManPtr address]
-            0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
-            0x48, 0x89, 0x1A,                   // mov [rdx],rbx
-            0x48, 0x89, 0x13,                   // mov [rbx],rdx
-            0x48, 0x8B, 0x91, 0, 0, 0, 0,       // mov rdx,[rcx + Offset1]
-            0x48, 0x89, 0x5A, 0x08,             // mov [rdx+08],rbx
-            0x48, 0x89, 0x53, 0x08,             // mov [rbx+08],rdx
-            0xC7, 0x81, 0, 0, 0, 0, 1, 0, 0, 0, // mov [rcx + Offset2], 1
-            0xC7, 0x81, 0, 0, 0, 0, 0, 0, 0x20, 0x41, // mov [rcx + Offset3], 10.0f
-            0xC3,                               // ret
+            0x48, 0xBB, 0, 0, 0, 0, 0, 0, 0, 0,
+            0x48, 0xB9, 0, 0, 0, 0, 0, 0, 0, 0,
+            0x48, 0x8B, 0x91, 0, 0, 0, 0,
+            0x48, 0x89, 0x1A,
+            0x48, 0x89, 0x13,
+            0x48, 0x8B, 0x91, 0, 0, 0, 0,
+            0x48, 0x89, 0x5A, 0x08,
+            0x48, 0x89, 0x53, 0x08,
+            0xC7, 0x81, 0, 0, 0, 0, 1, 0, 0, 0,
+            0xC7, 0x81, 0, 0, 0, 0, 0, 0, 0x20, 0x41,
+            0xC3,
                 };
-
-                // Patch addresses and offsets into the shellcode.
                 Array.Copy(BitConverter.GetBytes(chrReloadData.ToInt64()), 0, buffer, 0x2, 8);
                 Array.Copy(BitConverter.GetBytes(Core.Memory.EldenRing_WorldChrManPtr.ToInt64()), 0, buffer, 0xC, 8);
                 Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x17, 4);
                 Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset1), 0, buffer, 0x24, 4);
                 Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset2), 0, buffer, 0x32, 4);
                 Array.Copy(BitConverter.GetBytes(EldenRingConfig.AsmPatch_Offset3), 0, buffer, 0x3C, 4);
-                Log("Patched shellcode with dynamic addresses and offsets.");
+                Log("Patched shellcode.");
 
-                // --- 6. Write and Execute ---
-                //if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
-                //{
-                //    ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory failed for the ASM buffer.");
-                //    return false;
-                //}
-
-                //IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
-                //if (threadHandle != IntPtr.Zero)
-                //{
-                //    Core.Memory.WaitForThread(threadHandle, 5000);
-                //    Core.Memory.CloseThreadHandle(threadHandle);
-                //    success = true;
-                //}
-                //else
-                //{
-                //    success = false;
-                //}
                 // --- 6. Write and Execute ---
                 if (!Core.Memory.WriteBytes(chrReloadAsm, buffer))
                 {
-                    ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory failed for the ASM buffer.");
+                    ShowInjectionFailed(SoulsGames.ER, "WriteProcessMemory for ASM buffer failed.");
                     return false;
                 }
 
                 IntPtr threadHandle = Core.Memory.ExecuteRemoteFunction(chrReloadAsm);
                 if (threadHandle != IntPtr.Zero)
                 {
-                    Log("Remote thread created. Waiting for completion (max 5s)...");
                     Core.Memory.WaitForThread(threadHandle, 5000);
                     Core.Memory.CloseThreadHandle(threadHandle);
                     Log("Remote thread finished.");
-
-                    // =========================================================
-                    // CRITICAL ADDITION: Add a small delay BEFORE freeing memory.
-                    // Give the game time to process the reload request triggered by the thread.
-                    Log("Delaying for 250ms before memory cleanup to prevent race condition...");
-                    System.Threading.Thread.Sleep(250); // 250 milliseconds
-                                                        // =========================================================
-
+                    Log("Delaying for 250ms before freeing memory...");
+                    System.Threading.Thread.Sleep(500);
                     success = true;
                 }
-                else
-                {
-                    // Error logged in ExecuteRemoteFunction
-                    success = false;
-                }
+                else { success = false; }
             }
             catch (Exception ex)
             {
@@ -1091,12 +1807,14 @@ namespace NpcReloaderGUI
             }
             finally
             {
+                // --- 7. Clean up ---
                 if (chrReloadAsm != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadAsm);
                 if (chrReloadData != IntPtr.Zero) Core.Memory.FreeMemory(chrReloadData);
                 Log($"Cleaned up allocated memory. Reload success: {success}");
             }
             return success;
         }
+        
         private static bool ReloadDs1r(byte[] chrNameBytes)
         {
             const long reloadFlagOffset = 0x1D151DB;
